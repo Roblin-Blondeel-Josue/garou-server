@@ -1,0 +1,91 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator pothos {
+  provider = "prisma-pothos-types"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String    @id @default(cuid())
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  email               String    @unique
+  username            String?
+  password            String?
+  firstName           String?
+  lastName            String?
+  birthDate           DateTime?
+  role                String?   @default("Player")
+  resetPasswordToken  String?   @unique
+  status              String    @default("created")
+  characters          Character[]
+}
+
+model Character {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  firstName       String?
+  lastName        String?
+  rang            String?   @default("Louveteau")
+  tribeId         String?
+  tribe           Tribe?    @relation(fields: [tribeId], references: [id], onDelete: Cascade)
+  clan            String?
+  alliance        String?
+  auspice         String    
+  secondAuspice   String?   @default("Aucune")
+  attributes      Json?
+  talents         Json?
+  politics        Json?
+  legends         Json?
+  wods            Json?
+  skills          Json?
+  gnose           Int?      @default(2)
+  willpower       Int?
+  crys            String[]
+  rituals         String[] 
+  gifts           Gift[]    @relation("CharacterToGifts")
+  bonus           Bonus[]   @relation("CharacterToBonus")
+  malus           Malus[]   @relation("CharacterToMalus")
+}
+
+model Gift {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  cost          String?
+  characters    Character[]  @relation("CharacterToGifts")
+}
+model Bonus {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  cost          String?
+  characters    Character[]  @relation("CharacterToBonus")
+}
+model Malus {
+  id            String   @id @default(cuid())
+  name          String
+  description   String?
+  cost          String?
+  characters    Character[]  @relation("CharacterToMalus")
+}
+
+model Tribe {
+  id            String @id @default(cuid())
+  name          String
+  clans         String[]
+  alliance      String
+  bonus         String
+  malus         String
+  characters    Character[]     
+}
